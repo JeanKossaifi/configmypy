@@ -1,6 +1,6 @@
 from ruamel.yaml import YAML
 from .bunch import Bunch
-
+from pathlib import Path
 
 class YamlConfig:
     """Read a yaml config file and export it as a dict
@@ -10,11 +10,12 @@ class YamlConfig:
     config_file : str, default is None
     config_name : str, default is None
     """
-    def __init__(self, config_file=None, config_name=None):
+    def __init__(self, config_file=None, config_name=None, config_folder=None):
         self.config_file = config_file
         self.config_name = config_name
+        self.config_folder = config_folder
     
-    def read_conf(self, config=None, config_file=None, config_name=None):
+    def read_conf(self, config=None, config_file=None, config_name=None, config_folder=None):
         """Actually read the conf from the specified yaml file
 
         .. important::
@@ -49,13 +50,20 @@ class YamlConfig:
         else:
             config_name = self.config_name
         
+        if config_folder is not None:
+            self.config_folder = config_folder
+        else:
+            config_folder = self.config_folder
+    
         # Nothing to read
         if config_file is None:
             return config, {}
 
+        filepath = Path(config_folder).join(config_file).as_posix()
+        self.filepath = filepath
         # Read the conf
         yaml=YAML()
-        with open(config_file, 'r') as f:
+        with open(filepath, 'r') as f:
             self.config = yaml.load(f)
         
         if config_name is not None:
@@ -73,4 +81,4 @@ class YamlConfig:
         return config, {}
 
     def __str__(self):
-        return f'{self.__class__.__name__} with config_file={self.config_file}, config_name={self.config_name}'
+        return f'{self.__class__.__name__} with config_file={self.config_file}, config_name={self.config_name}, config_folder={self.config_folder}'

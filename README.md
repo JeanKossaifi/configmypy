@@ -2,6 +2,33 @@
 
 Configure My Python: Easy configuration of Python projects.
 
+## Quickstart
+
+Just clone the repository and install it, here in editable mode:
+```
+git clone https://github.com/JeanKossaifi/configmypy
+cd configmypy
+python -m pip install -e .
+```
+
+Then, assuming you have a configuration file `config.yaml` in your folder, get your configuration using
+```python
+from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
+
+pipe = ConfigPipeline([YamlConfig('./config.yaml'),
+                        ArgparseConfig()])
+config = pipe.read_conf()
+```
+
+Then just read your parameters from config:
+```
+arg = config.arg
+arg2 = config['arg2']
+...
+```
+
+The script will read config.yaml, as well as optional command-line arguments, which will overwrite the config.
+
 ## Rationale
 
 How many times did you start having a large Python project, let's say to run some Machine Learning models, where you wanted to change quickly the parameters.

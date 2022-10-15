@@ -34,6 +34,8 @@ class Bunch(dict):
         for key, value in init.items():
             if isinstance(value, dict):
                 value = Bunch(value)
+            elif value is not None and (value == 'None' or value == 'none'):
+                value = None
             self[key] = value
 
     __getattr__ = dict.__getitem__

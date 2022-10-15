@@ -59,7 +59,7 @@ class YamlConfig:
         if config_file is None:
             return config, {}
 
-        filepath = Path(config_folder).join(config_file).as_posix()
+        filepath = Path(config_folder).resolve().joinpath(config_file).as_posix()
         self.filepath = filepath
         # Read the conf
         yaml=YAML()

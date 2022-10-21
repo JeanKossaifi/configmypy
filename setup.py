@@ -60,7 +60,7 @@ config = {
     'version': VERSION,
     'url': 'https://github.com/JeanKossaifi/configmypy',
     'download_url': 'https://github.com/JeanKossaifi/configmypy/tarball/' + VERSION,
-    'install_requires': ['pytest', 'pytest-mock'],
+    'install_requires': ['pytest', 'pytest-mock', 'ruamel.yaml'],
     'license': 'Modified BSD',
     'scripts': [],
     'classifiers': [

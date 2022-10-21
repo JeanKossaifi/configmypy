@@ -5,13 +5,15 @@ Configure My Python: Easy configuration of Python projects.
 ## Quickstart
 
 Just clone the repository and install it, here in editable mode:
-```
+
+```bash
 git clone https://github.com/JeanKossaifi/configmypy
 cd configmypy
 python -m pip install -e .
 ```
 
 Then, assuming you have a configuration file `config.yaml` in your folder, get your configuration using
+
 ```python
 from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
 
@@ -21,6 +23,7 @@ config = pipe.read_conf()
 ```
 
 Then just read your parameters from config:
+
 ```
 arg = config.arg
 arg2 = config['arg2']

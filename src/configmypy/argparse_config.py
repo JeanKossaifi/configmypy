@@ -13,12 +13,25 @@ class ArgparseConfig:
     ----------
     infer_types : bool, default is True
         if True, use type(value) to indicate expected type
+
+    overwrite_nested_config : bool, default is True
+        if True, users can set values at different levels of nesting
+        e.g. if you have a field::
+
+            mlp:
+              in_features: 64
+              out_features: 128
+
+        then users could set `mlp.in_features` or disable mlp alltogether by
+        setting `mlp=None`
+
     **additional_config : dict
         key, values to read from command-line and pass on to the next config
     """
-    def __init__(self, infer_types=True, **additional_config):
+    def __init__(self, infer_types=True, overwrite_nested_config=True, **additional_config):
         self.additional_config = Bunch(additional_config)
         self.infer_types = infer_types
+        self.overwrite_nested_config = overwrite_nested_config
     
     def read_conf(self, config=None, **additional_config):
         """
@@ -46,7 +59,7 @@ class ArgparseConfig:
         config.update(self.additional_config)
         
         parser = argparse.ArgumentParser(description='Read the config from the commandline.')
-        for key, value in iter_nested_dict_flat(config):
+        for key, value in iter_nested_dict_flat(config, return_intermediate_keys=self.overwrite_nested_config):
             if self.infer_types and value is not None:
                 parser.add_argument(f'--{key}', type=type(value), default=value)
             else:

@@ -5,7 +5,8 @@ Configure My Python: Easy configuration of Python projects.
 ## Quickstart
 
 Just clone the repository and install it, here in editable mode:
-```
+
+```bash
 git clone https://github.com/JeanKossaifi/configmypy
 cd configmypy
 python -m pip install -e .

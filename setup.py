@@ -39,7 +39,6 @@ def readme(root_path, name='README.md'):
     root_path : pathlib.Path
         path to the root of the package
     """
-    print(root_path, root_path.joinpath(name))
     with root_path.joinpath(name).open(encoding='UTF-8') as f:
         return f.read()
 
@@ -54,13 +53,13 @@ config = {
     'package_dir': {"": "src"},
     'description': 'Fast and easy configuration of Python projects.',
     'long_description': README,
-    'long_description_content_type' : 'text/x-rst',
+    'long_description_content_type' : 'text/markdown',
     'author': 'Jean Kossaifi',
     'author_email': 'jean.kossaifi@gmail.com',
     'version': VERSION,
     'url': 'https://github.com/JeanKossaifi/configmypy',
     'download_url': 'https://github.com/JeanKossaifi/configmypy/tarball/' + VERSION,
-    'install_requires': ['pytest', 'pytest-mock'],
+    'install_requires': ['pytest', 'pytest-mock', 'ruamel.yaml'],
     'license': 'Modified BSD',
     'scripts': [],
     'classifiers': [

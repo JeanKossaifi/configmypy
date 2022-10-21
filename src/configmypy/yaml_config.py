@@ -10,7 +10,7 @@ class YamlConfig:
     config_file : str, default is None
     config_name : str, default is None
     """
-    def __init__(self, config_file=None, config_name=None, config_folder=None):
+    def __init__(self, config_file=None, config_name=None, config_folder='.'):
         self.config_file = config_file
         self.config_name = config_name
         self.config_folder = config_folder

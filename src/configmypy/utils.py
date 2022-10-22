@@ -1,7 +1,7 @@
 from .bunch import Bunch
 
 
-def iter_nested_dict_flat(d, separator='.', return_intermediate_keys=True):
+def iter_nested_dict_flat(d, separator='.', return_intermediate_keys=False):
     """Iterate throught the key, items of a nested dict
     keys will be flattened, nesting indicated by the given separator
     
@@ -20,9 +20,11 @@ def iter_nested_dict_flat(d, separator='.', return_intermediate_keys=True):
     """
     for key, value in d.items():
         if isinstance(value, dict):
-            yield key, True
+            if return_intermediate_keys:
+                yield key, 1
             for nested_key, nested_value in iter_nested_dict_flat(value, separator=separator):
                 yield f'{key}{separator}{nested_key}', nested_value
+
         else:
             yield key, value
 

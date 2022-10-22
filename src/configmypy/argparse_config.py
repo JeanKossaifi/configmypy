@@ -1,4 +1,5 @@
 import argparse
+from copy import deepcopy
 from .bunch import Bunch
 from .utils import iter_nested_dict_flat
 from .utils import update_nested_dict_from_flat
@@ -28,7 +29,7 @@ class ArgparseConfig:
     **additional_config : dict
         key, values to read from command-line and pass on to the next config
     """
-    def __init__(self, infer_types=True, overwrite_nested_config=True, **additional_config):
+    def __init__(self, infer_types=True, overwrite_nested_config=False, **additional_config):
         self.additional_config = Bunch(additional_config)
         self.infer_types = infer_types
         self.overwrite_nested_config = overwrite_nested_config
@@ -70,6 +71,28 @@ class ArgparseConfig:
 
         if config is not None:
             config = Bunch(config)
+            if self.overwrite_nested_config:
+                # Create a copy
+                trimmed_config = Bunch(self.config)
+
+                # Remove subdict if overwritten by users
+                for key, value in self.config.items():
+                    if value is None or not value:
+                        for subkey in self.config.keys():
+                            if subkey.startswith(key) and (key != subkey):
+                                print('removing subdict', subkey)
+                                trimmed_config.pop(subkey)
+                    elif key in trimmed_config:
+                        # Value is True: delete the key if it has leafs
+                        for subkey in self.config.keys():
+                            if subkey.startswith(key) and (key != subkey):
+                                print('removing root', key)
+                                print(subkey.startswith(key), subkey, key)
+                                trimmed_config.pop(key)
+                                break
+                self.config = trimmed_config
+
+            # Update the config passed by the user with the new one
             for key, value in self.config.items():
                 update_nested_dict_from_flat(config, key, value)
         else:

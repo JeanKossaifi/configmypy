@@ -10,12 +10,15 @@ def test_iter_nested_dict_flat():
     true_res = {'a.b': 3, 'a.c.d': 'e', 'a.c.f': 5, 'a.g': 5}
     res = dict(iter_nested_dict_flat(test))
     assert res == true_res
-    
+
+    true_res = {'a': 1, 'a.b': 3, 'a.c.d': 'e', 'a.c.f': 5, 'a.g': 5}
+    res = dict(iter_nested_dict_flat(test, return_intermediate_keys=True))
+    assert res == true_res
+
     # Nothing to do for non-nested dict
     test = dict(a=2, b=3, c=4)
     res = dict(iter_nested_dict_flat(test))
     assert res == test
-    
 
 def test_update_nested_dict_from_flat():
     """Test for update_nested_dict_from_flat

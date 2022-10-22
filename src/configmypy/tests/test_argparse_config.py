@@ -27,10 +27,10 @@ def test_ArgparseConfig(monkeypatch):
     assert kwargs == Bunch(dict(config_name='test'))
 
     # Test overwriting entire nested argument
-    monkeypatch.setattr("sys.argv", ['test', '--data', 'False', '--config_name', 'test'])
+    monkeypatch.setattr("sys.argv", ['test', '--data', '0', '--config_name', 'test'])
     config = Bunch(TEST_CONFIG_DICT['default'])
     parser = ArgparseConfig(infer_types=True, config_name=None, overwrite_nested_config=True)
     args, kwargs = parser.read_conf(config)
-    config.data = False
+    config['data'] = 0
     assert config == args
     assert kwargs == Bunch(dict(config_name='test'))

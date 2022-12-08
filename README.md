@@ -1,3 +1,7 @@
+![PyPI](https://img.shields.io/pypi/v/configmypy)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/JeanKossaifi/configmypy/Test%20ConfigMyPy)
+
+
 # ConfigMyPy
 
 Configure My Python: Easy configuration of Python projects.

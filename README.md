@@ -1,6 +1,5 @@
 ![PyPI](https://img.shields.io/pypi/v/configmypy)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/JeanKossaifi/configmypy/Test%20ConfigMyPy)
-
+[![Github Test](https://github.com/JeanKossaifi/configmypy/actions/workflows/test.yml/badge.svg)](https://github.com/JeanKossaifi/configmypy/actions/workflows/test.yml)
 
 # ConfigMyPy
 

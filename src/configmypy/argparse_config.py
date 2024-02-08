@@ -3,7 +3,7 @@ from copy import deepcopy
 from .bunch import Bunch
 from .utils import iter_nested_dict_flat
 from .utils import update_nested_dict_from_flat
-
+from .type_inference import infer_numeric, infer_boolean
 
 class ArgparseConfig:
     """Read config from the command-line using argparse
@@ -62,7 +62,13 @@ class ArgparseConfig:
         parser = argparse.ArgumentParser(description='Read the config from the commandline.')
         for key, value in iter_nested_dict_flat(config, return_intermediate_keys=self.overwrite_nested_config):
             if self.infer_types and value is not None:
-                parser.add_argument(f'--{key}', type=type(value), default=value)
+                # use type inferencing callable if available, otherwise strictly infer type
+                if type(value) == int or type(value) == float:
+                    parser.add_argument(f'--{key}', type=infer_numeric, default=value)
+                elif type(value) == bool:
+                    parser.add_argument(f'--{key}', type=infer_boolean, default=value)
+                else:
+                    parser.add_argument(f'--{key}', type=type(value), default=value)
             else:
                 parser.add_argument(f'--{key}', default=value)
 

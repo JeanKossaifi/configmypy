@@ -34,7 +34,7 @@ class ArgparseConfig:
         self.infer_types = infer_types
         self.overwrite_nested_config = overwrite_nested_config
     
-    def read_conf(self, config=None, **additional_config):
+    def read_conf(self, config=None, fuzzy=False, **additional_config):
         """
         Please note that values passed in the __init__ take precedence!
         If a config is passed, that given config (assumed to be a dict) will be updated 
@@ -44,6 +44,9 @@ class ArgparseConfig:
         ----------
         config : dict, default is None
             if not None, a dict config to update
+        fuzzy: bool, default is False
+            if True, all values, regardless of type,
+            may take the value None. 
         additional_config : dict
         
         Returns
@@ -62,7 +65,7 @@ class ArgparseConfig:
         parser = argparse.ArgumentParser(description='Read the config from the commandline.')
         for key, value in iter_nested_dict_flat(config, return_intermediate_keys=self.overwrite_nested_config):
                 # smartly infer types if 
-                inferencer = TypeInferencer(orig_type=type(value), strict=(not self.infer_types))
+                inferencer = TypeInferencer(orig_type=type(value), fuzzy=fuzzy, strict=(not self.infer_types))
 
                 parser.add_argument(f'--{key}', type=inferencer, default=value)
 

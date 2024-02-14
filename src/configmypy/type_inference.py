@@ -4,7 +4,7 @@ from argparse import ArgumentTypeError
 from typing import Callable
 
 
-def infer_boolean(var):
+def infer_boolean(var, fuzzy: bool=False, strict: bool=True):
     """
     accept argparse inputs of string, correctly
     convert into bools. Without this behavior, 
@@ -18,44 +18,79 @@ def infer_boolean(var):
         return True
     elif var.lower() == 'false':
         return False
-    else:
-        raise ArgumentTypeError()
-
-def infer_numeric(var):
-    # infer numeric values using simple hierarchy
-    # int if possible -> float -> NoneType
-    if '.' in list(var):
-        return float(var)
-    elif var.isnumeric():
-        return int(var)
-    elif var.lower() == 'none' or var.lower() == 'false':
+    elif fuzzy and var.lower() == 'None':
         return None
-    else:
+    elif strict:
         raise ArgumentTypeError()
+    else:
+        return str(var)
 
+def infer_numeric(var, fuzzy: bool=False, strict: bool=True):
+    # int if possible -> float -> NoneType -> Err
+    if var.isnumeric():
+        return int(var)
+    elif '.' in list(var):
+        decimal_left_right = var.split('.')
+        if len(decimal_left_right) == 2:
+            if sum([x.isnumeric() for x in decimal_left_right]) == 2: # True, True otherwise False
+                return float(var)
+    elif fuzzy and var.lower() == 'none':
+        return None
+    elif strict:
+        raise ArgumentTypeError()
+    else:
+        return str(var)
+
+def infer_str(var, fuzzy: bool=False, strict:bool=True):
+    """
+    infer string values and handle fuzzy None and bool types
+
+    var: str input
+    fuzzy: 
+    """
+    if fuzzy:
+        return infer_boolean(var,fuzzy=True,strict=False)
+    else:
+        return str(var)
 
 class TypeInferencer(object):
-    def __init__(self, orig_type: Callable, strict: bool=False):
+    def __init__(self, orig_type: Callable, strict: bool=True, fuzzy: bool=False):
         """
         TypeInferencer mediates between argparse
         and ArgparseConfig
         
+        orig_type: Callable type
+            type of original var from config
+        strict: bool, default True
+            whether to use type inferencing. If False,
+            default to simply applying default type converter.
+                This may cause issues for some types:
+                ex. if argparseConfig takes a boolean for arg 'x', 
+                passing --x False into the command line will return a value
+                of True, since argparse works with strings and bool('False') = True.
+        fuzzy: bool, default False
+            if True, accept values of None regardless of type. 
+        strict: bool, default True
+            if True, raise ArgumentTypeError when the value cannot be cast to
+            the allowed types. Otherwise default to str. 
+
         """
         self.orig_type = orig_type
+        self.fuzzy = fuzzy
         self.strict = strict
 
     def __call__(self, var):
-        if self.strict:
-            return self.orig_type(var)
+        """
+        Callable method passed to argparse's builtin Callable type argument.
+        var: original variable (any type)
+
+        """
+        if self.orig_type == bool:
+            return infer_boolean(var, self.fuzzy, self.strict)
+        elif self.orig_type == float or self.orig_type == int:
+            return infer_numeric(var, self.fuzzy, self.strict)
         else:
-            if orig_type == bool:
-                return infer_boolean(var)
-            elif orig_type == float or orig_type == int:
-                return infer_numeric(var)
+            if self.strict:
+                return infer_str(var)
             else:
-                # add infer_list, etc?
                 return self.orig_type(var)
-
-
-
-

@@ -44,9 +44,12 @@ class ArgparseConfig:
         ----------
         config : dict, default is None
             if not None, a dict config to update
-        fuzzy: bool, default is False
-            if True, all values, regardless of type,
+        infer_types: bool, default is False
+            if True, uses custom type handling
+            where all values, regardless of type,
             may take the value None. 
+            If false, uses default argparse
+            typecasting
         additional_config : dict
         
         Returns
@@ -64,8 +67,9 @@ class ArgparseConfig:
         
         parser = argparse.ArgumentParser(description='Read the config from the commandline.')
         for key, value in iter_nested_dict_flat(config, return_intermediate_keys=self.overwrite_nested_config):
-                # smartly infer types if 
-                inferencer = TypeInferencer(orig_type=type(value), fuzzy=fuzzy, strict=(not self.infer_types))
+                # smartly infer types if infer_types is turned on 
+                # otherwise force default typecasting
+                inferencer = TypeInferencer(orig_type=type(value), strict=(not self.infer_types))
 
                 parser.add_argument(f'--{key}', type=inferencer, default=value)
 

@@ -54,7 +54,26 @@ def infer_str(var, strict:bool=True):
         return None
     else:
         return str(var)
-        
+
+def infer_iterable(var, iterable_type: Callable, strict: bool=True):
+    """
+    infer value of an iterable with expected type List[type] or Tuple[type]
+
+    var: str 
+        input to argparse
+    iterable_type: Callable
+        function to apply on contents of iterable
+    """
+    # unpack outer list, apply recursively, return list or tuple of inner
+    if var[0] == "[" and var[-1] == "]":
+        return infer_iterable(var[1:-1], iterable_type, strict)
+    elif var[0] == "(" and var [-1] == ")":
+        return tuple(infer_iterable(var[1:-1], iterable_type, strict))
+    else:
+        iterable_entries = var.split(",")
+        return [iterable_type(x,strict) for x in iterable_entries]
+
+
 
 class TypeInferencer(object):
     def __init__(self, orig_type: Callable, strict: bool=True):

@@ -83,6 +83,7 @@ class TypeInferencer(object):
         
         orig_type: Callable type
             type of original var from config
+            cannot be NoneType - defaults to infer_str
         strict: bool, default True
             whether to use type inferencing. If False,
             default to simply applying default type converter.
@@ -95,7 +96,10 @@ class TypeInferencer(object):
             the allowed types. Otherwise default to str. 
 
         """
-        self.orig_type = orig_type
+        if orig_type == type(None):
+            self.orig_type = infer_str
+        else:
+            self.orig_type = orig_type
         self.strict = strict
 
     def __call__(self, var):
@@ -104,6 +108,7 @@ class TypeInferencer(object):
         var: original variable (any type)
 
         """
+        print(f"{self.orig_type=} {var=}")
         if self.orig_type == bool:
             return infer_boolean(var, self.strict)
         elif self.orig_type == float or self.orig_type == int:

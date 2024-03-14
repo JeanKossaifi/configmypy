@@ -1,6 +1,7 @@
 # Infer types of argparse arguments intelligently
 
 from argparse import ArgumentTypeError
+from ast import literal_eval
 from typing import Callable
 
 
@@ -55,25 +56,30 @@ def infer_str(var, strict:bool=True):
     else:
         return str(var)
 
-def infer_iterable(var, iterable_type: Callable, strict: bool=True):
-    """
-    infer value of an iterable with expected type List[type] or Tuple[type]
-
-    var: str 
-        input to argparse
-    iterable_type: Callable
-        function to apply on contents of iterable
-    """
-    # unpack outer list, apply recursively, return list or tuple of inner
-    if var[0] == "[" and var[-1] == "]":
-        return infer_iterable(var[1:-1], iterable_type, strict)
-    elif var[0] == "(" and var [-1] == ")":
-        return tuple(infer_iterable(var[1:-1], iterable_type, strict))
+def infer_iterable(var, inner_type: Callable=None, strict: bool=True):
+    # Use ast.literal_eval to parse the iterable tree,
+    # then use custom type handling to infer the inner types
+    raw_ast_iter = literal_eval(var)
+    if inner_type is not None:
+        return iterable_helper(raw_ast_iter, inner_type, strict)
     else:
-        iterable_entries = var.split(",")
-        return [iterable_type(x,strict) for x in iterable_entries]
+        # currently argparse config cannot support inferring
+        # more granular types than list or tuple
+        return raw_ast_iter
+    
 
-
+def iterable_helper(var, inner_type: Callable, strict: bool=True):
+    """
+    recursively loop through iterable and apply custom type
+    callables to each inner variable to conform to strictness
+    """
+    if isinstance(var, list):
+        return [iterable_helper(x,inner_type, strict) for x in var]
+    elif isinstance(var, tuple):
+        return tuple([iterable_helper(x,inner_type, strict) for x in var])
+    else:
+        return inner_type(str(var),strict)
+    
 
 class TypeInferencer(object):
     def __init__(self, orig_type: Callable, strict: bool=True):
@@ -113,6 +119,8 @@ class TypeInferencer(object):
             return infer_boolean(var, self.strict)
         elif self.orig_type == float or self.orig_type == int:
             return infer_numeric(var, self.strict)
+        elif self.orig_type == tuple or self.orig_type == list:
+            return infer_iterable(var, None, self.strict)
         else:
             if self.strict:
                 return infer_str(var)

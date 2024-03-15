@@ -114,7 +114,6 @@ class TypeInferencer(object):
         var: original variable (any type)
 
         """
-        print(f"{self.orig_type=} {var=}")
         if self.orig_type == bool:
             return infer_boolean(var, self.strict)
         elif self.orig_type == float or self.orig_type == int:

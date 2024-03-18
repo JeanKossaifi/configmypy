@@ -1,5 +1,6 @@
 import argparse
 from copy import deepcopy
+from ctypes import ArgumentError
 from .bunch import Bunch
 from .utils import iter_nested_dict_flat
 from .utils import update_nested_dict_from_flat
@@ -12,8 +13,10 @@ class ArgparseConfig:
     
     Parameters
     ----------
-    infer_types : bool, default is True
-        if True, use type(value) to indicate expected type
+    infer_types : False or literal['fuzzy', 'strict']
+        if False, use python's typecasting from type(value) to indicate expected type
+        if fuzzy, use custom type handling and allow all types to take values of None
+        if strict, use custom type handling but do not allow passing bool or None to other types.
 
     overwrite_nested_config : bool, default is True
         if True, users can set values at different levels of nesting
@@ -29,12 +32,15 @@ class ArgparseConfig:
     **additional_config : dict
         key, values to read from command-line and pass on to the next config
     """
-    def __init__(self, infer_types=True, overwrite_nested_config=False, **additional_config):
+    def __init__(self, infer_types=False, overwrite_nested_config=False, **additional_config):
         self.additional_config = Bunch(additional_config)
-        self.infer_types = infer_types
+        if infer_types in [False, "fuzzy", "strict"]:
+            self.infer_types = infer_types
+        else:
+            raise ArgumentError("Error: infer_types only takes values False, \'fuzzy\', \'strict\'")
         self.overwrite_nested_config = overwrite_nested_config
     
-    def read_conf(self, config=None, fuzzy=False, **additional_config):
+    def read_conf(self, config=None, **additional_config):
         """
         Please note that values passed in the __init__ take precedence!
         If a config is passed, that given config (assumed to be a dict) will be updated 
@@ -69,9 +75,17 @@ class ArgparseConfig:
         for key, value in iter_nested_dict_flat(config, return_intermediate_keys=self.overwrite_nested_config):
                 # smartly infer types if infer_types is turned on 
                 # otherwise force default typecasting
-                inferencer = TypeInferencer(orig_type=type(value), strict=(not self.infer_types))
+                if self.infer_types:
+                    if self.infer_types == 'strict':
+                        strict=True
+                    elif  self.infer_types == 'fuzzy':
+                        strict=False
 
-                parser.add_argument(f'--{key}', type=inferencer, default=value)
+                    type_inferencer = TypeInferencer(orig_type=type(value), strict=strict)
+                else:
+                    type_inferencer = type(value)
+
+                parser.add_argument(f'--{key}', type=type_inferencer, default=value)
 
         args = parser.parse_args()
         self.config = Bunch(args.__dict__)        

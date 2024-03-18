@@ -32,7 +32,7 @@ class ArgparseConfig:
     **additional_config : dict
         key, values to read from command-line and pass on to the next config
     """
-    def __init__(self, infer_types=False, overwrite_nested_config=False, **additional_config):
+    def __init__(self, infer_types="fuzzy", overwrite_nested_config=False, **additional_config):
         self.additional_config = Bunch(additional_config)
         if infer_types in [False, "fuzzy", "strict"]:
             self.infer_types = infer_types

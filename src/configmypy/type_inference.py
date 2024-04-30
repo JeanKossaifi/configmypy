@@ -4,6 +4,9 @@ from argparse import ArgumentTypeError
 from ast import literal_eval
 from typing import Callable
 
+# import custom Yaml types to handle sequences
+from ruamel.yaml import CommentedSeq, CommentedMap
+
 
 def infer_boolean(var, strict: bool=True):
     """
@@ -118,7 +121,7 @@ class TypeInferencer(object):
             return infer_boolean(var, self.strict)
         elif self.orig_type == float or self.orig_type == int:
             return infer_numeric(var, self.strict)
-        elif self.orig_type == tuple or self.orig_type == list:
+        elif self.orig_type == tuple or self.orig_type == list or self.orig_type == CommentedMap or self.orig_type == CommentedSeq:
             return infer_iterable(var, None, self.strict)
         else:
             if self.strict:

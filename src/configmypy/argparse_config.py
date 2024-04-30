@@ -36,6 +36,9 @@ class ArgparseConfig:
         self.additional_config = Bunch(additional_config)
         if infer_types in [False, "fuzzy", "strict"]:
             self.infer_types = infer_types
+        elif infer_types:
+            # Backwards compatibility
+            self.infer_types = 'strict'
         else:
             raise ArgumentError("Error: infer_types only takes values False, \'fuzzy\', \'strict\'")
         self.overwrite_nested_config = overwrite_nested_config

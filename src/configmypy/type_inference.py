@@ -6,6 +6,9 @@ from typing import Callable
 
 # import custom Yaml types to handle sequences
 from ruamel.yaml import CommentedSeq, CommentedMap
+from ruamel.yaml.scalarfloat import ScalarFloat
+from ruamel.yaml.scalarint import ScalarInt
+from ruamel.yaml.scalarbool import ScalarBoolean
 
 
 def infer_boolean(var, strict: bool=True):
@@ -117,9 +120,9 @@ class TypeInferencer(object):
         var: original variable (any type)
 
         """
-        if self.orig_type == bool:
+        if self.orig_type == bool or self.orig_type == ScalarBoolean:
             return infer_boolean(var, self.strict)
-        elif self.orig_type == float or self.orig_type == int:
+        elif self.orig_type == float or self.orig_type == int or self.orig_type == ScalarFloat or self.orig_type == ScalarInt:
             return infer_numeric(var, self.strict)
         elif self.orig_type == tuple or self.orig_type == list or self.orig_type == CommentedMap or self.orig_type == CommentedSeq:
             return infer_iterable(var, None, self.strict)

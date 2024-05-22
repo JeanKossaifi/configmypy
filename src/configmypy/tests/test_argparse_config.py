@@ -10,12 +10,17 @@ TEST_CONFIG_DICT = {
 
 
 def test_ArgparseConfig(monkeypatch):
-    monkeypatch.setattr("sys.argv", ['test', '--data.batch_size', '24'])
+    monkeypatch.setattr("sys.argv", ['test', '--data.batch_size', '24',\
+                                            '--data.test_resolutions', '[16]'])
     config = Bunch(TEST_CONFIG_DICT['default'])
     parser = ArgparseConfig(infer_types='fuzzy')
     args, kwargs = parser.read_conf(config)
+    assert args.data.test_resolutions == [16]
     config.data.batch_size = 24
+    config.data.test_resolutions = [16]
     assert config == args
+    # reset config data test_res
+    config.data.test_resolutions = [16,32]
     assert kwargs == {}
     
     # test ability to infer None, int-->float and iterables

@@ -91,8 +91,16 @@ class TypeInferencer(object):
     def __init__(self, orig_type: Callable, strict: bool=True):
         """
         TypeInferencer mediates between argparse
-        and ArgparseConfig
-        
+        and ArgparseConfig by passing `argparse.ArgumentParser` 
+        a more complex Callable type function than Python's defaults.
+
+        This handles cases such as:
+        Properly handling booleans: `bool("False") = True` 
+        --> `infer_bool("False")` returns `False`
+
+        Properly handling optional[numeric | None] types: `int(None)` throws an error
+        --> infer_numeric("None") returns `None`
+
         orig_type: Callable type
             type of original var from config
             cannot be NoneType - defaults to infer_str

@@ -35,8 +35,8 @@ The script will read config.yaml, as well as optional command-line arguments, wh
 
 ## Rationale
 
-How many times did you start having a large Python project, let's say to run some Machine Learning models, where you wanted to change quickly the parameters.
-Then you want to track them. In you write a small logger. Then you write a small yaml config file to more easily manage the quickly growing list of parameters.
+How many times have you started a large Python project, let's say to run some Machine Learning models, and noticed that you wanted to quickly change some parameters?
+Then you want to track them. You write a small logger. Then you write a small yaml config file to more easily manage the quickly growing list of parameters.
 Then you realize you sometimes need to change some of these parameters on the fly. 
 In comes argparse, and you manually override an increasingly long list of paramters with a code becoming a long list of
 
@@ -98,7 +98,7 @@ config = pipe.read_conf()
 
 This will: 
 1) first read the `default` section in `config.yaml`
-2) update any parameters with those passed by the user, including additional parameters `config_file` and `config_name` which are automatically passed to the next step
+2) update any parameters with those passed by the user, smartly inferring types from text, including additional parameters `config_file` and `config_name` which are automatically passed to the next step
 3) If the user specified a `config_file`, that will be read by the next step and used to update the configuration.
 
 You can check the configuration by calling `pipe.log()`:
@@ -128,6 +128,19 @@ data.batch_size=24
 ###############################
 
 ```
+
+## Smart type inference
+Python's `argparse` module is built to handle typed arguments. By default, an `ArgumentParser` takes input from the user in the form of strings. To convert one argument's string input to an expected type, any argument added via `ArgumentParser.add_argument` may also pass the parameter `type`, which applies a Python `Callable` to the string input, ex: `x = int(x)`. 
+
+This can lead to typecasting issues when your configuration includes types like booleans, or parameters that may take either a float or int value. For instance, if you pass argparse a boolean argument `--arg False`, the value passed into the parser will be `True`! 
+
+```
+>> bool("False")
+
+True
+```
+
+To solve this problem, `ArgparseConfig` includes a paramter `infer_types`. If `infer_types` is set to `False`, type inference happens in the way described above. But if set to `"fuzzy"` or "`strict`", we infer using custom `TypeInferencer` functions that infer these types more intelligently. Check `src/configmypy/type_inferencer.py` for more specific documentation.
 
 ## Questions or issues
 This is very much a project in development that I wrote for myself and decided to open-source so myself and others could easily reuse it for multiple projects, while knowing it is actually tested!

@@ -83,7 +83,6 @@ class ArgparseConfig:
                         strict=True
                     elif  self.infer_types == 'fuzzy':
                         strict=False
-                    print(f"creating inferencer for {key} of type {type(value)}")
                     type_inferencer = TypeInferencer(orig_type=type(value), strict=strict)
                 else:
                     type_inferencer = type(value)
